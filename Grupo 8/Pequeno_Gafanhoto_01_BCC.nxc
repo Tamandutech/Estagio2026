@@ -3,7 +3,7 @@
 #define motorArma OUT_B
 #define motorEsquerda OUT_C
 #define dist_sensor SensorUS(IN_1)
-#define dist_busca 30
+#define dist_busca 25
 
 // Protótipos
 void arma_inicial();
@@ -21,7 +21,7 @@ task main()
     // Parado antes de começar
     Wait(5000);
 
-    // Arma & estratégia inicial
+    // Arma e estratégia inicial
     arma();
     m_inicial();
 
