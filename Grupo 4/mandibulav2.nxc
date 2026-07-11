@@ -1,8 +1,8 @@
 #define motorDireita  OUT_A              // Motor Direito --> entrada A
-#define motorArma     OUT_B              // Possível motor de Arma --> entrada B
+#define motorArma     OUT_B              // PossÃ­vel motor de Arma --> entrada B
 #define motorEsquerda OUT_C              // Motor Esquerdo --> entrada C
 
-#define distancia_sensor1 SensorUS(IN_1)  // Sensor Ultrassônico --> entrada 1
+#define distancia_sensor1 SensorUS(IN_1)  // Sensor UltrassÃ´nico --> entrada 1
 #define distancia_sensor2 SensorUS(IN_2)
 #define distancia_busca 35
 
@@ -11,12 +11,12 @@
 
 void atacar();
 void baixarRampa();
-void levanarRampa();
+void levantarRampa();
 void movimentoInicial();
 
 task main(){
 
-    SetSensorLowspeed(IN_1);            // NÃO MEXER SUJEITO À >>>PROBLEMAS<<<
+    SetSensorLowspeed(IN_1);            // NÃƒO MEXER SUJEITO Ã€ >>>PROBLEMAS<<<
     SetSensorLowspeed(IN_2);
     Wait(5000);                         // Tempo de espera previsto nas regras
 
@@ -31,18 +31,18 @@ task main(){
         }
 
         else
-        {                               // Caso não localize um objeto, girar para um lado (nesse caso, Esquerda)
+        {                               // Caso nÃ£o localize um objeto, girar para um lado (nesse caso, Esquerda)
            OnFwd(motorDireita,50);
-           OnFwd(motorEsquerda,-50);    // Necessario testar a potência para curvas mais rápidas ou mais lentas
+           OnFwd(motorEsquerda,-50);    // Necessario testar a potÃªncia para curvas mais rÃ¡pidas ou mais lentas
         }
     }
 }
 
 void baixarRampa()
 {
-     OnFwd(motorArma,potencia_rampa);   // Necessário testar a direção e a potencia do desarme.
-     Wait(1000);                        // Se não desarmar completo, aumentar o delay;
-     Off(motorArma);                    // Uma vez que as linhas acabarem, o robô irá para a função de movimentoInicial ou voltar para a main.
+     OnFwd(motorArma,potencia_rampa);   // NecessÃ¡rio testar a direÃ§Ã£o e a potencia do desarme.
+     Wait(1000);                        // Se nÃ£o desarmar completo, aumentar o delay;
+     Off(motorArma);                    // Uma vez que as linhas acabarem, o robÃ´ irÃ¡ para a funÃ§Ã£o de movimentoInicial ou voltar para a main.
 }
 
 void levantarRampa()
@@ -50,7 +50,7 @@ void levantarRampa()
      ResetRotationCount(motorArma);
      Wait(1);
 
-     OnFwd(motorArma,-potencia_rampa);    // Necessário testar a direção e a potencia para levantar a rampa. Deve
+     OnFwd(motorArma,-potencia_rampa);    // NecessÃ¡rio testar a direÃ§Ã£o e a potencia para levantar a rampa. Deve
                                             ser diferente do desarme?
      while(MotorRotationCount(motorArma) < angulo_rampa)
      {
@@ -69,7 +69,7 @@ void atacar()
      ResetRotationCount(motorEsquerda);
      Wait(1);
 
-     //Avaça com tudo
+     //AvaÃ§a com tudo
      OnFwd(motorDireita,100);
      OnFwd(motorEsquerda,100);
      
@@ -78,7 +78,7 @@ void atacar()
      giroDireita = MotorRotationCount(motorDireita);
      giroEsquerda = MotorRotationCount(motorEsquerda);
      
-     if(giroDireita < 15 && giroEsquerda < 15) //necessario testar se 15º deve ser o suficiente para ativara a função
+     if(giroDireita < 15 && giroEsquerda < 15) //necessario testar se 15Âº deve ser o suficiente para ativara a funÃ§Ã£o
     {
         levantarRampa();
 
@@ -90,9 +90,9 @@ void atacar()
 
 void movimentoInicial()
 {
-     //necessário testar e ajustar potencia dos motores e tempo de execucao para cada estratégia
+     //necessÃ¡rio testar e ajustar potencia dos motores e tempo de execucao para cada estratÃ©gia
 
-     //1) o robô vai começar andando para frente por 1 segundo, esperamos que fique mais próximo do centro da arena
+     //1) o robÃ´ vai comeÃ§ar andando para frente por 1 segundo, esperamos que fique mais prÃ³ximo do centro da arena
      OnFwd(motorDireita,50);
      OnFwd(motorEsquerda,50);
      Wait(1000);
