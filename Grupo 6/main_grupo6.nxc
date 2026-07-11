@@ -58,12 +58,12 @@ void estrategia3();
 
 
 //__________MEXER PARA REGULAR A DISTANCIA DE BUSCA____________________________________
-#define distancia_busca 35      // Limiar para o robô começar a andar para frente, em centímetros
-#define distancia_ataque 15     // Distancia para robo tentar levantar com a rampa o outro
-#define tempo_rampa 1000 // Tempo para a rampa subir ou descer totalmente em relacao a carcaca do robo
+#define distancia_busca 40      // Limiar para o robô começar a andar para frente, em centímetros
+#define distancia_ataque 25     // Distancia para robo tentar levantar com a rampa o outro
+#define tempo_rampa 500 // Tempo para a rampa subir ou descer totalmente em relacao a carcaca do robo
 #define tolerancia_ataque 3 // diferenca maxima de distancia dos sensores para nao realizar curvas
 #define NUM_ESTRATEGIAS 3
-#define potenciaRampa 50
+#define potenciaRampa 100
 
 
 
@@ -75,7 +75,7 @@ void estrategia3();
 //==============================================================================
 
 bool rampa_levantada = false; // o robo comeca com a rampa levantada, mas logo no comeco desce ela, entao o estado inicial é abaixada (false)
-bool atacando = false; // quando o robo encontra o outro, a lampa faz o movimento de levantar e abaixar repetidamente
+bool atacando = true; // quando o robo encontra o outro, a lampa faz o movimento de levantar e abaixar repetidamente
                        // essa variavel certifica que a rampa terminou seu movimento de levantar/abaixar, para comecar outro
 
 task main(){
@@ -88,6 +88,8 @@ task main(){
     Wait(5000);                         // Tempo de espera previsto nas regras
     
     arma(potenciaRampa, tempo_rampa);
+    
+    atacando = false;
     
     switch(estrategia)
     {
@@ -137,7 +139,7 @@ task main(){
 
 void arma(int pwr, int time)      // Função para a ativação de uma possível arma
 {
-     OnFwd(motorArma, pwr);      // Se o desarme for para a direção contrária, inverter sinal. Mexer na potência.
+     OnFwd(motorArma, -pwr);      // Se o desarme for para a direção contrária, inverter sinal. Mexer na potência.
      Wait(time);                 // Se não desarmar completo, aumentar o delay;
      Off(motorArma);            // Uma vez que as linhas acabarem, o robô irá para a função de movimentoInicial ou voltar para a main.
 }
@@ -152,37 +154,35 @@ task ataque()
 {
      if(!rampa_levantada)
      {
-      arma(-potenciaRampa, (tempo_rampa*7)/10);
+      arma(-potenciaRampa, tempo_rampa/2);
       rampa_levantada = true;
      }
      else
      {
-      arma(potenciaRampa, (tempo_rampa*7)/10);
+      arma(potenciaRampa, tempo_rampa/2);
       rampa_levantada = false;
      }
 
      atacando = false;
 }
 
-void estrategia1() // Andar retao, CALIBRAR
+void estrategia3() // Andar retao, CALIBRAR
 {
      pwrMotor(100, 100);
-     Wait(500);
+     Wait(600);
 }
 
 void estrategia2() // Caso o robo comeca de costas, ele gira e anda reto, PRECISA CALIBRAR O TEMPO DE GIRO
 {
-     pwrMotor(-50, 50);
+     pwrMotor(-100, 100);
      Wait(500);
      estrategia1();
 }
 
-void estrategia3() //ZIGZAG, CALIBRAR
+void estrategia1() //sem ataque
 {
-  pwrMotor(50, 100);
-  Wait(100);
-  pwrMotor(100, 50);
-  Wait(100);
+     atacando = true;
+     estrategia3();
 }
 
 int selecionarEstrategia()
@@ -207,6 +207,10 @@ int selecionarEstrategia()
           }
           else if(ButtonPressed(BTNCENTER, true))
           {
+               TextOut(0, LCD_LINE1, "Selecione a");
+               TextOut(0, LCD_LINE2, "estrategia:");
+               TextOut(0, LCD_LINE4, "SELECIONADO!!!!!!!");
+               
                confirmado = true;
           }
 
