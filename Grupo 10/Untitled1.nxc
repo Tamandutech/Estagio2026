@@ -1,0 +1,47 @@
+#define motorDireita OUT_A
+#define motorArma OUT_B
+#define motorEsquerda OUT_C
+#define distancia_sensor SensorUS(IN_1)
+//calibrando a direção
+int dirD = 1;  // Sentido do motor Direito (1 = frente, -1 = trás)
+int dirE = 1;  // Sentido do motor Esquerdo (1 = frente, -1 = trás)
+// regulando a distancia de busca
+#define distancia_busca 45      // Distância em cm para detectar o oponente
+void arma();
+void movimentoInicial();
+task main(){
+SetSensorLowspeed(IN_1);            // Inicializa o Sensor de Ultrassom na Porta 1
+Wait(5000);                         // 5 segundos obrigatórios parado
+
+movimentoInicial();                 // Executa a estratégia inicial escolhida
+
+while(true){                        // Loop eterno de combate
+
+    if(distancia_sensor < distancia_busca){
+       // se localizou o outro robo: Vai de frente com Força Máxima (100%)
+       OnRev(motorDireita, 100 * dirD);
+       OnRev(motorEsquerda, 100 * dirE);
+    }
+    else{
+       // se não achou o robo ou perdeu de vista: Gira no próprio eixo para procurar
+       OnRev(motorDireita, 50 * dirD);
+       OnRev(motorEsquerda, -50 * dirE);
+    }
+}
+}
+void arma() {
+// Função vazia pois o robô é um Paredão  sem armas móveis
+}
+void movimentoInicial()
+{
+// Começando de frente
+// Avança rápido para o centro por 1 segundo antes de começar a buscar
+OnRev(motorDireita, 80 * dirD);
+OnRev(motorEsquerda, 80 * dirE);
+Wait(1000);
+// Começando de costas num possivel desempate
+// OnRev(motorDireita, 80 * dirD);
+// OnRev(motorEsquerda, -80 * dirE); // Um motor ao contrário do outro para girar rápido
+// Wait(600);                        // ajustar esse tempo no dia para ele girar 180 graus
+// Off(OUT_AC);                      // Breve pausa para estabilizar antes do ataque
+}
