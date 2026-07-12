@@ -1,0 +1,49 @@
+//==============================================================================
+//===| TAMANDUTECH EQUIPE DE ROBÓTICA |========================================
+//===|          ESTÁGIO 2026 - ROBÔ 15x15                       |
+//==============================================================================
+
+#define motorDireita OUT_A      // Motor direito na entrada A        // Motor do áriete na entrada B
+#define motorEsquerda OUT_C     // Motor esquerdo na entrada C
+
+// Configuração dos sensores ultrassônicos frontais
+#define sensor_esq SensorUS(IN_3)  // Sensor esquerdo na porta 1
+#define sensor_dir SensorUS(IN_4)  // Sensor direito na porta 2
+
+#define distancia_busca 17      // Limiar para começar a atacar (em centímetros)
+
+task main(){
+    // Inicialização dos sensores ultrassônicos
+    SetSensorLowspeed(IN_3);
+    SetSensorLowspeed(IN_4);
+    
+    // Aciona o áriete logo no início da contagem (largada de 15x15cm)
+    
+
+    //os 5 segundos obrigatórios da regra da competição
+    Wait(5200);
+    //OnFwd(OUT_AC, 50);           // pra tras
+    //Wait(100);
+
+    //==========================================================================
+    // LAÇO PRINCIPAL DE COMBATE
+    //==========================================================================
+    while(true){                        
+        
+        // Se qualquer um dos sensores detectar algo a menos de 35cm
+        if((sensor_esq < distancia_busca) || (sensor_dir < distancia_busca)){          
+            
+            // Inimigo localizado: avanço
+            OnFwd(motorDireita, -100);
+            OnFwd(motorEsquerda, -100);
+            
+            // Ataque temporizado (bote) para evitar passar direto pela borda
+            Wait(400);
+        }
+        else{                           
+            // Caso não localize ninguém, gira no próprio eixo para rastrear a arena
+            OnFwd(motorDireita, -40);
+            OnFwd(motorEsquerda, 40);
+        }
+    }
+}
