@@ -1,0 +1,53 @@
+#define motorDireita OUT_A      // Motor Direito --> entrada A
+#define motorAsa OUT_B         // Possível motor de Arma --> entrada B
+#define motorEsquerda OUT_C     // Motor Esquerdo --> entrada C
+#define SensorDireita SensorUs(IN_2)
+#define SensorEsquerda SensorUs(IN_3)
+void movimentoInicial();
+
+//__________MEXER PARA REGULAR A DISTANCIA DE BUSCA____________________________________
+#define distancia_busca 35      // Limiar para o robô começar a andar para frente, em centímetros
+
+
+
+
+
+
+//==============================================================================
+//=========================CORPO DO CÓDIGO======================================
+//==============================================================================
+
+task main(){
+
+     // inicializa o sensor de toque
+     SetSensorTouch(IN_2);          // sensor da esquerda
+     SetSensorTouch(IN_3);          // sensor da direita
+     Wait(5000);                         // Tempo de espera previsto nas regras
+    movimentoInicial();            // Apagar o "//" para que seu robô execute a estratégia inicial
+
+    while(true){
+    if(Sensor(IN_2) && !(Sensor(IN_3))){          // robô gira pra direita se só o sensor da esquerda for ativado
+       OnFwd(motorDireita,-100);
+       OnFwd(motorEsquerda,100);
+    } else if(Sensor(IN_3) && !(Sensor(IN_2))){   // robô gira pra esquerda se só o sensor da direita for ativado
+       OnFwd(motorDireita,100);
+       OnFwd(motorEsquerda,-100);
+    } else if ((Sensor(IN_3) && Sensor(IN_2)) || !(Sensor(IN_3) && !(Sensor(IN_2)))) { // se os dois sensores estiverem ativos ou nao, anda pra frente
+       OnFwd(motorDireita, -100);
+       OnFwd(motorEsquerda, -100);
+    } else {
+      OnFwd(motorDireita, -10);
+      OnFwd(motorEsquerda, -10);
+    }
+}
+}
+
+
+void movimentoInicial()
+{
+     // abre a asa
+     OnFwd(motorAsa, 100);
+     Wait(300);
+     OnFwd(motorAsa,0);
+}
+
