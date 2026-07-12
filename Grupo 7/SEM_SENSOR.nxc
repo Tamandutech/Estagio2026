@@ -1,0 +1,130 @@
+// Esse código não foi utilizado nas disputas
+
+//==============================================================================
+//===| TAMANDUTECH EQUIPE DE ROBÓTICA  |========================================
+//===|           ESTÁGIO 2024          |========================================
+//===|        CÓDIGO DE EXEMPLO        |========================================
+//==============================================================================
+
+/* Este código funciona de maneira que o robô possa se movimentar através dos motores A e C
+Gire no próprio eixo para a esquerda com 50% da potência até que identifique um adversário a menos de 35cm.
+Uma vez identificado, o robô andará para frente em velocidade máxima até que a luta acabe ou ele perca o adversário de vista.
+
+O intuito do desafio é adaptar o código ao robô de vocês, adicionar
+movimentação inicial na função pré definida e realizar ajustes
+na velocidade dos motores conforme forem necessários */
+
+//==============================================================================
+
+/* Ordem de montagem:
+Motor da Direita na porta A
+Motor da Arma ou desarme na porta B
+Motor da Esquerda na porta C
+Sensor na porta 1
+*/
+
+//__________NÃO MEXER SEM APOIO DA STAFF_______________________________________
+#define motorDireita OUT_A      // Motor Direito --> entrada A
+#define motorArma OUT_B         // Possível motor de Arma --> entrada B
+#define motorEsquerda OUT_C     // Motor Esquerdo --> entrada C
+
+void abaixarArma();
+task arma();
+inline void movimentoCalculado(float centimetros);
+
+//__________MEXER PARA REGULAR O SENTIDO DOS MOTORES____________________________
+#define sr -1                    // sr: Sentido das rodas - se o sentido das rodas estiverem invertidos mudar para -1
+#define sa -1                    // sa: Sentido da arma - se o sentido da arma estiver invertido mudar para -1
+
+//__________CONSTANTES__________________________________________________________
+#define grausPorCentimetro 25   // Calcular utilizando tamanho da roda
+
+//__________VARIÁVEIS DE CONTROLE_______________________________________________
+int sentido = 1; // sentido do movimentoCalculado, 1 para frente -1 ré
+
+//==============================================================================
+//=========================CORPO DO CÓDIGO======================================
+//==============================================================================
+
+task main(){
+    Wait(5000);                         // Tempo de espera previsto nas regras
+
+    abaixarArma();
+    Wait(250);
+    movimentoCalculado(20);    // Vai para o centro da arena
+
+    while(true) { // Avança pra frente e volta, depois gira um pouco e repete o movimento, até esbarrar em algo
+        sentido = 1;
+        movimentoCalculado(20);
+
+        sentido = -1;
+        movimentoCalculado(20);
+
+        RotateMotorEx(OUT_AC, 75, 180*sr, 100, true, true);
+
+        Wait(20);
+    }
+}
+
+inline void movimentoCalculado(float centimetros) { // Função para andar uma determinada quantidade de centimetros
+    int graus = centimetros * grausPorCentimetro;
+    long tempoUltimo = CurrentTick();
+    long encoderAntigo = 0;
+
+    ResetRotationCount(motorDireita);
+
+    if (sentido == 1) {
+        OnFwd(motorEsquerda, 100*sr);
+        OnFwd(motorDireita, 100*sr);
+    } else {
+        OnRev(motorEsquerda, 100*sr);
+        OnRev(motorDireita, 100*sr);
+    }
+
+    while (abs(MotorRotationCount(motorDireita)) < graus) { // Mantém o loop até andar determinados centimetros
+        long tempoAtual = CurrentTick();
+
+        if ((tempoAtual - tempoUltimo) > 200) {
+            long encoderAtual = abs(MotorRotationCount(motorDireita));
+            long diferencaAngulo = encoderAtual - encoderAntigo;
+
+            if (diferencaAngulo < 15) { // Se a diferença de Angulo nos encoders for baixa, o robô esbarrou no adversário
+
+                if (sentido == 1) {
+                    OnFwd(motorEsquerda, 100*sr); // Vai pra frente até a luta acabar
+                    OnFwd(motorDireita, 100*sr);
+
+                    while(true) {
+                        StartTask(arma);
+                        Wait(3000);
+                    }
+                } else {
+                    OnRev(motorEsquerda, 100*sr); // Da ré até a luta acabar
+                    OnRev(motorDireita, 100*sr);
+
+                    while(true) {
+                        Wait(10000);
+                    }
+                }
+            }
+
+            encoderAntigo = encoderAtual;
+            tempoUltimo = tempoAtual;
+        }
+        Wait(10);
+    }
+
+    Off(OUT_AC);
+}
+
+task arma() {
+    ResetRotationCount(motorArma); // Sobe e desce a arma
+    RotateMotor(motorArma, 50, -50*sa);
+    RotateMotor(motorArma, 30, 50*sa);
+}
+
+void abaixarArma() {
+    ResetRotationCount(motorArma); // Desce a arma no inicio da partida
+    RotateMotor(motorArma, 20, 120*sa);  // Testar quanto a arma deve abaixar
+    OnFwd(motorArma, 20*sa); // Mantem a arma forçada no chão
+}
