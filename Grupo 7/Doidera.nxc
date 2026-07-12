@@ -1,0 +1,82 @@
+//==============================================================================
+//===| TAMANDUTECH EQUIPE DE ROBÓTICA  |========================================
+//===|          ESTÁGIO 2024           |========================================
+//===|       CÓDIGO DE EXEMPLO         |========================================
+//==============================================================================
+
+/* Este código funciona de maneira que o robô possa se movimentar através dos motores A e C
+Gire no próprio eixo para a esquerda com 50% da potência até que identifique um adversário a menos de 35cm.
+Uma vez identificado, o robô andará para frente em velocidade máxima até que a luta acabe ou ele perca o adversário de vista.
+
+O intuito do desafio é adaptar o código ao robô de vocês, adicionar movimentação inicial na função pré definida e realizar ajustes
+na velocidade dos motores conforme forem necessários
+
+Os comandos básicos são:
+
+OnFwd(MOTOR, POTENCIA (0 a 100));
+delay(milisegundos);
+
+Laços são os comuns de C, while, for, do while, until.
+
+Condicionais if, else if, else, switch case.
+
+Para outras funções, tasks, structures ou condicionamentos especiais, procurar ajuda na staff do estágio */
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
+
+/* Ordem de montagem:
+
+Motor da Direita na porta A
+Motor da Arma ou desarme na porta B
+Motor da Esquerda na porta C
+Sensor na porta 1
+Qualquer outra condição ou ideia, buscar apoio dos membros da equipe para configuração
+*/
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
+
+//__________NÃO MEXER SEM APOIO DA STAFF_______________________________________
+#define motorDireita OUT_A      // Motor Direito --> entrada A
+#define motorArma OUT_B         // Possível motor de Arma --> entrada B
+#define motorEsquerda OUT_C     // Motor Esquerdo --> entrada C
+#define distancia_sensorE SensorUS(IN_1)// Sensor Ultrassônico --> entrada 1
+#define distancia_sensorD SensorUS(IN_2)// Sensor Ultrassônico --> entrada 2
+void abaixarArma();
+
+
+
+
+//__________MEXER PARA REGULAR A DISTANCIA DE BUSCA E ATAQUE____________________
+#define distancia_busca 35      // Limiar para o robô começar a andar para frente, em centímetros
+#define distancia_ataque 5
+
+//__________MEXER PARA REGULAR O SENTIDO DOS MOTORES____________________________
+#define sr -1                    // sr: Sentido das rodas - se o sentido das rodas estiverem invertidos mudar para -1
+#define sa -1                    // sa: Sentido da arma - se o sentido da arma estiver invertido mudar para -1
+
+//__________VARIÁVEIS DE CONTROLE_______________________________________________
+int armaEstaAtiva = false;
+
+//==============================================================================
+//=========================CORPO DO CÓDIGO======================================
+//==============================================================================
+
+task main(){
+    abaixarArma();
+
+    while(true) {
+     OnFwd(motorEsquerda, 100*sr); // Avança com velocidade máxima para frente
+     OnFwd(motorDireita, 100*sr);
+
+     Wait(20);
+    }
+}
+
+void abaixarArma() {
+     OnFwd(motorArma, 75*sa);
+     Wait(250);
+}
