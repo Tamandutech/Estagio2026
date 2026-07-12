@@ -1,0 +1,40 @@
+#define motorDireita OUT_A
+#define motorEsquerda OUT_C
+#define sensorEsquerda SensorUS(IN_1)
+#define sensorDireita SensorUS(IN_3)
+
+
+
+#define distancia_busca 35
+
+
+
+task main(){
+
+    SetSensorLowspeed(IN_1);
+    SetSensorLowspeed(IN_3);
+    Wait(5000);
+
+    while(true){
+        if(sensorEsquerda < distancia_busca && sensorDireita < distancia_busca){
+           OnFwd(motorDireita,100);
+           OnFwd(motorEsquerda,100);
+        }
+ 
+        else if(sensorEsquerda < distancia_busca && sensorDireita > distancia_busca){
+           OnFwd(motorDireita,50);
+           OnRev(motorEsquerda,50);
+        }
+
+        else if (sensorDireita < distancia_busca && sensorEsquerda > distancia_busca) {
+            OnRev(motorDireita,50);
+            OnFwd(motorEsquerda,50);
+        }
+
+        else{
+            OnRev(motorDireita,50);
+            OnFwd(motorEsquerda,50);
+        }
+    }
+}
+

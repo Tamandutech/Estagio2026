@@ -1,0 +1,88 @@
+/* Ordem de montagem:
+
+Motor da Direita na porta A
+Motor da Rampa B
+Motor da Esquerda na porta C
+Sensor Esquerdo na porta 1
+Sensor Direito  na porta 3
+
+*/
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
+
+// 1. DEFINI��O DE PORTAS E CONSTANTES (Mapeamento do Hardware)
+#define motorDireita OUT_A    // Motor Direito --> entrada A
+#define motorRampa OUT_B      // Poss�vel motor de Rampa --> entrada B
+#define motorEsquerda OUT_C   // Motor Esquerdo --> entrada C
+#define sensorE SensorUS(IN_1)// Sensor  --> entrada 1
+#define sensorD SensorUS(IN_3)// Sensor  --> entrada 3
+
+
+//__________MEXER PARA REGULAR A DISTANCIA DE BUSCA____________________________________
+#define distancia_busca 35      // Limiar para o rob� come�ar a andar para frente, em cent�metros
+
+//==============================================================================
+//=========================CORPO DO C�DIGO======================================
+//==============================================================================
+
+// 2. FUN��O DA RAMPA E MOVIMENTA��P (Executada apenas uma vez no in�cio)
+void abaixarRampa() {
+    OnFwd(motorRampa, 60);      // Liga o motor da rampa para frente com 60% de for�a
+    Wait(350);                  // Mant�m o motor girando por 350 milissegundos para descer a rampa
+    Off(motorRampa);            // Desliga o motor para a rampa ficar travada no ch�o
+}
+void movimentoInicial() {
+    // Fura a defesa indo pela diagonal direita
+    OnFwd(motorEsquerda, 100); // Roda de fora gira no m�ximo
+    OnFwd(motorDireita, 40);  // Roda de dentro gira devagar
+    Wait(800);                // Mant�m a curva por quase 1 segundo
+    // Depois disso, ele entra no while(true) para ca�ar
+}
+
+
+// 3. FUN��O PRINCIPAL (Onde o rob� toma as decis�es)
+task main() {
+    // Inicializa as portas digitais dos sensores ultrass�nicos como "Lowspeed" (obrigat�rio para I2C)
+    SetSensorLowspeed(IN_1);    // Ativa o sensor esquerdo
+    SetSensorLowspeed(IN_3);    // Ativa o sensor direito
+
+    // Tempo de seguran�a oficial exigido pelas regras da competi��o (5 segundos)
+    Wait(5000);                 // Aguarda 5000 milissegundos parado na arena
+
+    // Aciona a rampa assim que o round come�a para liberar o rob� do gabarito
+    abaixarRampa();
+
+    // LOOP INFINITO: O rob� executar� este bloco de decis�es para sempre
+    while(true) {
+
+        // CEN�RIO A: Os dois sensores detectaram o advers�rio na frente!
+        if (sensorE < distancia_busca && sensorD < distancia_busca) {
+            // Se o rob� for para tr�s em vez de ir para frente, mude OnFwd para OnRev
+            OnFwd(motorDireita, 100);   // For�a total no motor direito
+            OnFwd(motorEsquerda, 100);  // For�a total no motor esquerdo (Ataque frontal!)
+        }
+
+        // CEN�RIO B: Apenas o sensor da ESQUERDA viu o inimigo
+        else if (sensorE < distancia_busca && sensorD > distancia_busca) {
+            OnRev(motorEsquerda, 60);   // Gira o motor esquerdo para tr�s
+            OnFwd(motorDireita, 60);    // Gira o motor direito para frente (Gira r�pido para a Esquerda)
+            Wait(40);                   // Pequeno intervalo de tempo para estabilizar o giro
+        }
+
+        // CEN�RIO C: Apenas o sensor da DIREITA viu o inimigo
+        else if (sensorE > distancia_busca && sensorD < distancia_busca) {
+            OnFwd(motorEsquerda, 60);   // Gira o motor esquerdo para frente
+            OnRev(motorDireita, 60);    // Gira o motor direito para tr�s (Gira r�pido para a Direita)
+            Wait(40);                   // Pequeno intervalo de tempo para estabilizar o giro
+        }
+
+        // CEN�RIO D: Ningu�m est� � vista (Estrat�gia de Busca)
+        else {
+            OnFwd(motorDireita, 50);    // Motor direito vai para frente com metade da for�a
+            OnRev(motorEsquerda, 50);   // Motor esquerdo vai para tr�s com metade da for�a
+            // Isso faz o rob� ficar girando no pr�prio eixo como um radar procurando o inimigo
+        }
+    }
+}
